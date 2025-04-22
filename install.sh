@@ -22,7 +22,14 @@ if ! command -v docker &> /dev/null; then
     $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
     tee /etc/apt/sources.list.d/docker.list > /dev/null
     apt-get update
-    apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+    apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+    # Add user to docker group
+    if [ -n "$SUDO_USER" ]; then
+        usermod -aG docker "$SUDO_USER"
+        echo "User $SUDO_USER added to docker group. Please log out and log back in for the changes to take effect."
+    else
+        echo "No SUDO_USER found. Please add your user to the docker group manually."
+    fi
 else
     echo "Docker is already installed."
 fi
